@@ -1,13 +1,13 @@
 import { Query } from "./index";
 
 const all = () => Query(`
-    select blogs.title, blogs.content, authors.name from blogs 
+    select blogs.id, blogs.title, blogs.content, authors.name from blogs 
     join authors 
     on blogs.authorid = authors.id
 `);
 
 const one = (id: number) => Query(`
-    select blogs.title, blogs.content, authors.name from blogs 
+    select blogs.id, blogs.title, blogs.content, authors.name from blogs 
     join authors 
     on blogs.authorid = authors.id
     where blogs.id = ?

@@ -32,13 +32,14 @@ router.get("/:id", async (req: express.Request, res: express.Response) => {
 // creates a new author as well as a blog
 router.post("/", async (req: express.Request, res: express.Response) => {
     try {
-        const author = req.body.author,
-            blog = req.body.blog,
-            blogtags = req.body.blog.tags
+        const author: { name: string, email: string } = req.body.author,
+            blog: { title: string, content: string, tags: [] } = req.body.blog,
+            blogtags: string[] = req.body.blog.tags;
 
         const newAuthor = await db.Authors.insert(author.name, author.email),
-            newBlog = await db.Blogs.insert(blog.title, blog.content, newAuthor.insertId),
-            newBlogTags = await db.BlogTags.insert(newBlog.insertId, blogtags);
+            newBlog = await db.Blogs.insert(blog.title, blog.content, newAuthor.insertId);
+
+        await db.BlogTags.insert(newBlog.insertId, blogtags);
 
         res.status(200).send(`
             author created with id: ${newAuthor.insertId}
@@ -53,7 +54,7 @@ router.post("/", async (req: express.Request, res: express.Response) => {
 router.put("/:id", async (req: express.Request, res: express.Response) => {
     try {
         const content: string = req.body.content,
-            id = Number(req.params.id);
+            id: number = Number(req.params.id);
 
         await db.Blogs.update(content, id);
 
@@ -66,8 +67,9 @@ router.put("/:id", async (req: express.Request, res: express.Response) => {
 
 router.delete("/:id", async (req: express.Request, res: express.Response) => {
     try {
-        const id = Number(req.params.id);
+        const id: number = Number(req.params.id);
 
+        await db.BlogTags.deleteBlogTags(id);
         await db.Blogs.deleteBlog(id);
 
         res.status(200).send(`blog deleted at id: ${id}`);
@@ -77,4 +79,4 @@ router.delete("/:id", async (req: express.Request, res: express.Response) => {
     }
 });
 
-export default router
+export default router;
